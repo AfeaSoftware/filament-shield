@@ -95,16 +95,10 @@ class SuperAdminCommand extends Command
             $this->superAdmin = $this->createSuperAdmin();
         }
 
-        if (Utils::isTenancyEnabled()) {
-            if (blank($tenantId)) {
-                $this->components->error('Please provide the team/tenant id via `--tenant` option to assign the super admin to a team/tenant.');
-
-                return self::FAILURE;
-            }
+        if (Utils::isTenancyEnabled() && ! blank($tenantId)) {
             setPermissionsTeamId($tenantId);
             $this->superAdminRole = Utils::createRole(tenantId: $tenantId);
             $this->superAdminRole->syncPermissions(Utils::getPermissionModel()::pluck('id'));
-
         } else {
             $this->superAdminRole = Utils::createRole();
         }
