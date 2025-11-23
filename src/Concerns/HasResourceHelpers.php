@@ -40,14 +40,20 @@ trait HasResourceHelpers
 
     public function getAllResourcePermissionsWithLabels(): array
     {
-        return once(
-            fn (): array => collect($this->getResources())
+        $panelId = $this->getCurrentPanelId();
+        $cacheKey = "all_resource_permissions_with_labels_{$panelId}";
+
+        if (! isset(\BezhanSalleh\FilamentShield\FilamentShield::$panelCache[$cacheKey])) {
+            \BezhanSalleh\FilamentShield\FilamentShield::$panelCache[$cacheKey] = collect($this->getResources())
                 ->flatMap(
                     fn (array $resource): array => $this->getResourcePermissionsWithLabels(
                         $resource['resourceFqcn']
                     )
                 )
-                ->toArray()
-        );
+                ->toArray();
+        }
+
+        return \BezhanSalleh\FilamentShield\FilamentShield::$panelCache[$cacheKey];
     }
+
 }

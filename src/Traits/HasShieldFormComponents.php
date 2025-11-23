@@ -59,15 +59,13 @@ trait HasShieldFormComponents
 
     public static function getResourceTabBadgeCount(): ?int
     {
-        return once(
-            fn (): int => collect(FilamentShield::getResources())
-                ->sum(fn (array $resource): int => count($resource['permissions']))
-        );
+        return collect(FilamentShield::getResources())
+            ->sum(fn (array $resource): int => count($resource['permissions']));
     }
 
     public static function getResourcePermissionOptions(array $entity): array
     {
-        return once(fn (): array => FilamentShield::getResourcePermissionsWithLabels($entity['resourceFqcn']));
+        return FilamentShield::getResourcePermissionsWithLabels($entity['resourceFqcn']);
     }
 
     public static function setPermissionStateForRecordPermissions(Component $component, string $operation, array $permissions, ?Model $record): void
@@ -185,7 +183,7 @@ trait HasShieldFormComponents
     public static function getTabFormComponentForSimpleResourcePermissionsView(): Component
     {
         $options = FilamentShield::getAllResourcePermissionsWithLabels();
-        $count = once(fn (): int => count($options));
+        $count = count($options);
 
         return Tab::make('resources')
             ->label(__('filament-shield::filament-shield.resources'))

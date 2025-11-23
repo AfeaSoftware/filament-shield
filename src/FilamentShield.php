@@ -6,6 +6,7 @@ namespace BezhanSalleh\FilamentShield;
 
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Closure;
+use Filament\Facades\Filament;
 use Filament\Pages\BasePage as Page;
 use Filament\Resources\Resource;
 use Filament\Support\Concerns\EvaluatesClosures;
@@ -24,6 +25,8 @@ class FilamentShield
 
     protected ?Closure $buildPermissionKeyUsing = null;
 
+    protected static array $panelCache = [];
+
     public function buildPermissionKeyUsing(Closure $callback): static
     {
         $this->buildPermissionKeyUsing = $callback;
@@ -33,23 +36,52 @@ class FilamentShield
 
     public function getResources(): ?array
     {
-        return once(fn (): ?array => $this->transformResources());
+        $panelId = $this->getCurrentPanelId();
+        $cacheKey = "resources_{$panelId}";
+
+        if (! isset(static::$panelCache[$cacheKey])) {
+            static::$panelCache[$cacheKey] = $this->transformResources();
+        }
+
+        return static::$panelCache[$cacheKey];
     }
 
     public function getPages(): ?array
     {
-        return once(fn (): ?array => $this->transformPages());
+        $panelId = $this->getCurrentPanelId();
+        $cacheKey = "pages_{$panelId}";
+
+        if (! isset(static::$panelCache[$cacheKey])) {
+            static::$panelCache[$cacheKey] = $this->transformPages();
+        }
+
+        return static::$panelCache[$cacheKey];
     }
 
     public function getWidgets(): ?array
     {
-        return once(fn (): ?array => $this->transformWidgets());
+        $panelId = $this->getCurrentPanelId();
+        $cacheKey = "widgets_{$panelId}";
+
+        if (! isset(static::$panelCache[$cacheKey])) {
+            static::$panelCache[$cacheKey] = $this->transformWidgets();
+        }
+
+        return static::$panelCache[$cacheKey];
     }
 
     public function getCustomPermissions(bool $localized = false): ?array
     {
-        return once(fn (): ?array => $this->transformCustomPermissions($localized));
+        $panelId = $this->getCurrentPanelId();
+        $cacheKey = "custom_permissions_{$panelId}_" . ($localized ? '1' : '0');
+
+        if (! isset(static::$panelCache[$cacheKey])) {
+            static::$panelCache[$cacheKey] = $this->transformCustomPermissions($localized);
+        }
+
+        return static::$panelCache[$cacheKey];
     }
+
 
     /**
      * Get the localized resource permission label

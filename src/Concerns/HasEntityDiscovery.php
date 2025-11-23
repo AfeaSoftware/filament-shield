@@ -40,4 +40,11 @@ trait HasEntityDiscovery
             ? collect(Filament::getPanels())->flatMap(fn ($panel): array => $panel->getWidgets())->unique()
             : collect(Filament::getWidgets());
     }
+
+    protected function getCurrentPanelId(): string
+    {
+        $panel = Filament::getCurrentPanel() ?? Filament::getDefaultPanel();
+
+        return $panel ? $panel->getId() : 'default';
+    }
 }
